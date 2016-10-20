@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html ng-app="demo">
+    <head>
+        <meta charset="utf-8">
+        <title>InspireTree</title>
+        <link rel="stylesheet" href="./node_modules/inspire-tree/dist/inspire-tree.css" />
+        <style>
+            /* Angular directives require an extra DIV */
+            .collapsed > div > ol {
+                display: none;
+            }
+
+            li > div > .title-wrap {
+                position: relative;
+                z-index: 2;
+            }
+
+            .selected > div > .wholerow {
+                background: rgba(164, 234, 245, .5);
+            }
+
+            .focused:not(.selected) > div > .wholerow {
+                background: rgba(218, 250, 255, .5);
+            }
+        </style>
+    </head>
+    <body ng-controller="TestController">
+        <p>This is an extremely basic demo of implementing an Angular-native renderer.</p>
+        <div>
+            <inspire-tree options="treeOptions"></inspire-tree>
+        </div>
+    </body>
+    <script src="./node_modules/requirejs/require.js"></script>
+    <script>
+        require.config({
+            paths: {
+                angular: './node_modules/angular/angular.min',
+                inspireTree: './node_modules/inspire-tree/dist/inspire-tree-core-bundled.min',
+                ngInspireTree: './ngInspireTree'
+            },
+            shim: {
+                angular: {
+                    exports: 'angular'
+                }
+            }
+        });
+
+        require([
+            'angular',
+            'ngInspireTree'
+        ], function(angular) {
+            var module = angular.module('demo', ['ngInspireTree']);
+
+            module.controller('TestController', ['$http', '$scope', function($http, $scope) {
+                $scope.treeOptions = {
+                    data: function(node, resolve, reject) {
+                        // InspireTree can take normal promises, but angular wraps the response
+                        $http.get('full.json').then(function(response) {
+                            resolve(response.data);
+                        }).catch(reject);
+                    },
+                    onRegisterApi: function(api) {
+                        console.log('api', api);
+                    }
+                }
+            }]);
+        });
+    </script>
+</html>
